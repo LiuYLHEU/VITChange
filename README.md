@@ -6,3 +6,4 @@
 * Data preprocessing and training process are set in "utils".
 * The data set path, learning rate setting, training round number setting, etc. are carried out in "train".
 * Use the trained weights to predict in "predict".
+* You can communicate with me via email liuyuliang@hrbeu.edu.cn
