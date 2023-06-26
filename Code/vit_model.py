@@ -155,6 +155,7 @@ class VisionTransformer(nn.Module):
 
         self.cls_token = nn.Parameter(torch.zeros(1, 1, embed_dim))
         self.dist_token = nn.Parameter(torch.zeros(1, 1, embed_dim)) if distilled else None
+        # self.pos_embed = self.calculate_relative_position_encoding(num_patches, embed_dim)
         self.pos_embed = nn.Parameter(torch.zeros(1, num_patches, embed_dim))
         self.pos_drop = nn.Dropout(p=drop_ratio)
 
@@ -185,7 +186,15 @@ class VisionTransformer(nn.Module):
 
         nn.init.trunc_normal_(self.cls_token, std=0.02)
         self.apply(_init_vit_weights)
-
+                     
+    def calculate_relative_position_encoding(self, num_patches, embed_dim):
+        pos_enc = torch.zeros(1, num_patches, embed_dim)
+        position = torch.arange(0, num_patches).unsqueeze(1)
+        div_term = torch.exp(torch.arange(0, embed_dim, 2) * (-math.log(10000.0) / embed_dim))
+        pos_enc[:, :, 0::2] = torch.sin(position * div_term)
+        pos_enc[:, :, 1::2] = torch.cos(position * div_term)
+        return nn.Parameter(pos_enc)
+        
     def forward_features(self, x):
         x = self.patch_embed(x)
         x = self.pos_drop(x + self.pos_embed)
